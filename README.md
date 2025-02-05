@@ -1,6 +1,6 @@
 this is my hospital management api end point
 
-register user:-localhost:5000/api/user/register
+register user:-localhost:5000/api/user/register\n
 login user:localhost:5000/api/user/login
 logout user:-localhost:5000/api/user/logout
 booked Appointment:localhost:5000/api/user/book-appointment
