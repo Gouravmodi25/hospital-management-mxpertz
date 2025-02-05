@@ -1,0 +1,59 @@
+const asyncHandler = require("../utils/asyncHandler.js");
+
+const DoctorModel = require("../model/doctor.model.js");
+
+const jwt = require("jsonwebtoken");
+
+const ApiResponse = require("../utils/ApiResponse.js");
+
+const doctorAuthentication = asyncHandler(async (req, res, next) => {
+  const token = req.header("Authorization") || req.cookies?.accessToken;
+
+  console.log(token);
+
+  try {
+    if (!token) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, "Not Authorized Login Again"));
+    }
+
+    let decodedToken;
+
+    try {
+      decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch (error) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(401, "Invalid or expired token. Please log in again.")
+        );
+    }
+
+    const doctor = await DoctorModel.findById(decodedToken._id).select(
+      "-doctorPassword"
+    );
+
+    console.log(doctor);
+
+    if (!doctor) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(
+            401,
+            "Error verifying token data. Please log in again."
+          )
+        );
+    }
+
+    req.doctor = doctor;
+    next();
+  } catch (err) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, "Not Authorized Login Again"));
+  }
+});
+
+module.exports = doctorAuthentication;
